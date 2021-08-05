@@ -4,4 +4,4 @@ Shader to create a world bending effect in Unity. Require unity version `2020.3.
 
 ### Progress
 
-- Day Zero: `[Day Zero Folder](./Progress/DayZero/)`
+- Day Zero: [`Link`](./Progress/DayZero/)
