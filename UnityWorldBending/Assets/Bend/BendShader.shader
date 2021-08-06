@@ -2,11 +2,14 @@ Shader "Unlit/BendShader"
 {
     Properties
     {
-        _Color ("Color", Color) = (1, 1, 1, 1)
-        _Axis  ("Axis", Vector) = (0, 1, 0, 1)
+        _Color  ("Color",  Color ) = (1, 1, 1, 1)
+        _Axis   ("Axis",   Vector) = (0, 1, 0, 1)
+        _Origin ("Origin", Vector) = (0, 0, 0, 1)
+        _Degree ("Degree", Float ) = 45
     }
     SubShader
     {
+        Cull Off
         Tags { "RenderType"="Opaque" }
         LOD 100
 
@@ -18,6 +21,12 @@ Shader "Unlit/BendShader"
 
             // axis to rotate the vertices around
             float4 _Axis;
+
+            // origin of the axis to move it around
+            float4 _Origin;
+
+            // degrees to rotate around the axis
+            float  _Degree;
         CBUFFER_END
 
         struct VertexInput {
@@ -33,15 +42,19 @@ Shader "Unlit/BendShader"
         Pass
         {
             HLSLPROGRAM
+
+
             #pragma vertex vert
             #pragma fragment frag
 
+            // #define PI = 3.14159265f;
+
             // taken from https://docs.unity3d.com/Packages/com.unity.shadergraph@6.9/manual/Rotate-About-Axis-Node.html
-            void Unity_RotateAboutAxis_Degrees_float( float3 In, float3 Axis, float Rotation, out float3 Out ) {
+            float3 Unity_RotateAboutAxis_Degrees_float( float3 In, float3 Axis, float Rotation ) {
                 Rotation = radians( Rotation );
                 float s = sin( Rotation );
                 float c = cos( Rotation );
-                float one_minus_c = 1.0 - c;
+                float one_minus_c = 1.0f - c;
 
                 Axis = normalize( Axis );
                 float3x3 rot_mat =
@@ -49,16 +62,43 @@ Shader "Unlit/BendShader"
                     one_minus_c * Axis.x * Axis.y + Axis.z * s, one_minus_c * Axis.y * Axis.y + c, one_minus_c * Axis.y * Axis.z - Axis.x * s,
                     one_minus_c * Axis.z * Axis.x - Axis.y * s, one_minus_c * Axis.y * Axis.z + Axis.x * s, one_minus_c * Axis.z * Axis.z + c
                 };
-                Out = mul( rot_mat,  In );
+                return mul( rot_mat, In );
             }
 
+            // [TODO]: Add comments.
+            float3 ProjectPointOnRay( float3 pt, float3 origin, float3 dir ) {
+                float3 po = origin - pt;
+                float factor = dot( po, dir );
+                return origin + ( dir * factor );
+            }
+
+            // [TODO]: Add comments.
             float3 Bend( float3 worldPos ) {
-                float3 dist = worldPos - _Axis.xyz;
-                float3 rotatedDist;
+                float3 pointOnAxis = ProjectPointOnRay( worldPos, _Origin, _Axis );
+                float3 perp = worldPos - pointOnAxis;
 
-                Unity_RotateAboutAxis_Degrees_float( dist, _Axis.xyz, dist.x, rotatedDist );
+                float curveLength = radians( _Degree ) * abs( perp.y );
 
-                return rotatedDist;
+                if ( worldPos.x > pointOnAxis.x + curveLength ) {
+                    // float3 newPos = pointOnAxis + float3( -perp.y, perp.y, 0.0f );
+                    // newPos = worldPos - newPos;
+                    // float3 rotatedPos = Unity_RotateAboutAxis_Degrees_float( newPos, _Axis, _Degree );
+                    // worldPos += -newPos + rotatedPos;
+
+                    // float3 toRotate = worldPos + ( pointOnAxis + float3( -curveLength, perp.y, 0.0f ) );
+                    float3 toRotate = worldPos - ( pointOnAxis + float3( 0.0f, perp.y, 0.0f ) );
+                    toRotate.x -= curveLength;
+                    toRotate = Unity_RotateAboutAxis_Degrees_float( toRotate, _Axis, _Degree );
+                    float3 offset = Unity_RotateAboutAxis_Degrees_float( float3( 0.0f, perp.y, 0.0f ), _Axis, _Degree );
+                    worldPos = pointOnAxis + offset + toRotate;
+                } else if ( worldPos.x > pointOnAxis.x ) {
+                    float toRotate = lerp( 0, _Degree, abs( worldPos.x - pointOnAxis.x ) / curveLength );
+                    float3 rotatedPos = Unity_RotateAboutAxis_Degrees_float( float3( 0.0f, perp.y, 0.0f ), _Axis, toRotate );
+                    worldPos = pointOnAxis + rotatedPos;
+                    worldPos.z = -worldPos.z;
+                }
+
+                return worldPos;
             }
 
             VertexOutput vert( VertexInput vsi ) {
