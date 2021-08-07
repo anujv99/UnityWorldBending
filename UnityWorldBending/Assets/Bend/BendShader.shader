@@ -6,6 +6,7 @@ Shader "Unlit/BendShader"
         _Axis   ("Axis",   Vector) = (0, 1, 0, 1)
         _Origin ("Origin", Vector) = (0, 0, 0, 1)
         _Degree ("Degree", Float ) = 45
+        _CurveLength ("Curve Length", Float) = 10
     }
     SubShader
     {
@@ -27,6 +28,9 @@ Shader "Unlit/BendShader"
 
             // degrees to rotate around the axis
             float  _Degree;
+
+            // used to determine how smooth the curve will be
+            float _CurveLength;
         CBUFFER_END
 
         struct VertexInput {
@@ -73,40 +77,43 @@ Shader "Unlit/BendShader"
             }
 
             // [TODO]: Add comments.
-            float3 Bend( float3 worldPos ) {
-                float3 pointOnAxis = ProjectPointOnRay( worldPos, _Origin, _Axis );
+            float3 BendZ( float3 modelPos ) {
+                float3 worldPos = TransformObjectToWorld( modelPos );
+
+                if ( _Axis.z < 0.0f ) {
+                    worldPos.x = -worldPos.x;
+                }
+
+                float3 pointOnAxis = ProjectPointOnRay( worldPos, _Origin.xyz, _Axis.xyz );
                 float3 perp = worldPos - pointOnAxis;
 
-                float curveLength = radians( _Degree ) * abs( perp.y );
+                float curveLength = _CurveLength;
+
+                _Degree = _Degree * sign( -perp.y ) * sign( _Axis.z );
 
                 if ( worldPos.x > pointOnAxis.x + curveLength ) {
-                    // float3 newPos = pointOnAxis + float3( -perp.y, perp.y, 0.0f );
-                    // newPos = worldPos - newPos;
-                    // float3 rotatedPos = Unity_RotateAboutAxis_Degrees_float( newPos, _Axis, _Degree );
-                    // worldPos += -newPos + rotatedPos;
-
-                    // float3 toRotate = worldPos + ( pointOnAxis + float3( -curveLength, perp.y, 0.0f ) );
                     float3 toRotate = worldPos - ( pointOnAxis + float3( 0.0f, perp.y, 0.0f ) );
                     toRotate.x -= curveLength;
-                    toRotate = Unity_RotateAboutAxis_Degrees_float( toRotate, _Axis, _Degree );
-                    float3 offset = Unity_RotateAboutAxis_Degrees_float( float3( 0.0f, perp.y, 0.0f ), _Axis, _Degree );
+                    toRotate = Unity_RotateAboutAxis_Degrees_float( toRotate, _Axis.xyz, _Degree );
+                    float3 offset = Unity_RotateAboutAxis_Degrees_float( float3( 0.0f, perp.y, 0.0f ), _Axis.xyz, _Degree );
                     worldPos = pointOnAxis + offset + toRotate;
                 } else if ( worldPos.x > pointOnAxis.x ) {
                     float toRotate = lerp( 0, _Degree, abs( worldPos.x - pointOnAxis.x ) / curveLength );
-                    float3 rotatedPos = Unity_RotateAboutAxis_Degrees_float( float3( 0.0f, perp.y, 0.0f ), _Axis, toRotate );
+                    float3 rotatedPos = Unity_RotateAboutAxis_Degrees_float( float3( 0.0f, perp.y, 0.0f ), _Axis.xyz, toRotate );
                     worldPos = pointOnAxis + rotatedPos;
                     worldPos.z = -worldPos.z;
+                }
+
+                if ( _Axis.z < 0.0f ) {
+                    worldPos.x = -worldPos.x;
                 }
 
                 return worldPos;
             }
 
             VertexOutput vert( VertexInput vsi ) {
-                // transform model space to world space
-                float3 worldCoord = TransformObjectToWorld( vsi.pos.xyz );
-
                 // bend the vertices
-                worldCoord = Bend( worldCoord );
+                float3 worldCoord = BendZ( vsi.pos.xyz );
 
                 VertexOutput o;
                 // transform world space to screen space
