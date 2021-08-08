@@ -75,39 +75,6 @@ Shader "Unlit/BendShader"
                 return origin + ( dir * factor );
             }
 
-            // float3 BendY( float3 modelPos ) {
-            //     float3 worldPos = TransformObjectToWorld( modelPos );
-            // 
-            //     if ( _Axis.y < 0.0f ) {
-            //         worldPos.x = -worldPos.x;
-            //     }
-            // 
-            //     float3 pointOnAxis = ProjectPointOnRay( worldPos, _Origin.xyz, _Axis.xyz );
-            //     float3 perp = worldPos - pointOnAxis;
-            // 
-            //     float curveLength = _CurveLength;
-            // 
-            //     float degree = _Degree * sign( perp.z ) * sign( _Axis.y );
-            // 
-            //     if ( worldPos.x > pointOnAxis.x + curveLength ) {
-            //         float3 toRotate = worldPos - ( pointOnAxis + float3( 0.0f, 0.0f, perp.z ) );
-            //         toRotate.x -= curveLength;
-            //         toRotate = Unity_RotateAboutAxis_Degrees_float( toRotate, _Axis.xyz, degree );
-            //         float3 offset = Unity_RotateAboutAxis_Degrees_float( float3( 0.0f, 0.0f, perp.z ), _Axis.xyz, degree );
-            //         worldPos = pointOnAxis + offset + toRotate;
-            //     } else if ( worldPos.x > pointOnAxis.x ) {
-            //         float toRotate = lerp( 0, degree, abs( worldPos.x - pointOnAxis.x ) / curveLength );
-            //         float3 rotatedPos = Unity_RotateAboutAxis_Degrees_float( float3( 0.0f, 0.0f, perp.z ), _Axis.xyz, toRotate );
-            //         worldPos = pointOnAxis + rotatedPos;
-            //     }
-            // 
-            //     if ( _Axis.y < 0.0f ) {
-            //         worldPos.x = -worldPos.x;
-            //     }
-            // 
-            //     return worldPos;
-            // }
-
             // [TODO]: Add comments.
             float3 Bend( float3 modelPos ) {
                 const float3 ROTATIONAL_PLANE = float3( 1.0f, 0.0f, 0.0f );
@@ -122,16 +89,19 @@ Shader "Unlit/BendShader"
                 float degree = _Degree;
                 float curveLength = _CurveLength;
 
-                if ( worldPos.x > pointOnAxis.x + curveLength ) {
+                float oopToWorld = length( worldPos - originOnPlane );
+                float distDot = dot( worldPos - originOnPlane, ROTATIONAL_PLANE );
+
+                if ( oopToWorld > curveLength && distDot > 0.0f ) {
                     // beyond rotation, should become straight after curve
                     float3 toRotate = worldPos - originOnPlane;
-                    toRotate.x -= curveLength;
+                    toRotate = normalize( toRotate ) * ( oopToWorld - curveLength );
                     toRotate = Unity_RotateAboutAxis_Degrees_float( toRotate, rotationalAxis, degree );
                     float3 offset = Unity_RotateAboutAxis_Degrees_float( originOnPlane - pointOnAxis, rotationalAxis, degree );
                     worldPos = pointOnAxis + offset + toRotate;
-                } else if ( worldPos.x > pointOnAxis.x ) {
+                } else if ( distDot > 0.0f ) {
                     // in between curve, should be bent
-                    float toRotate = lerp( 0, degree, abs( worldPos.x - pointOnAxis.x ) / curveLength );
+                    float toRotate = lerp( 0, degree, oopToWorld / curveLength );
                     float3 rotatedPos = Unity_RotateAboutAxis_Degrees_float( originOnPlane - pointOnAxis, rotationalAxis, toRotate );
                     worldPos = pointOnAxis + rotatedPos;
                 }
