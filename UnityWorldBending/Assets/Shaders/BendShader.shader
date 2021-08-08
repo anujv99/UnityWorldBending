@@ -47,7 +47,6 @@ Shader "Unlit/BendShader"
         {
             HLSLPROGRAM
 
-
             #pragma vertex vert
             #pragma fragment frag
 
@@ -118,7 +117,7 @@ Shader "Unlit/BendShader"
                 float3 rotationalAxis = normalize( _Axis.xyz );
                 float3 pointOnAxis = ProjectPointOnRay( worldPos, _Origin.xyz, rotationalAxis );
                 float3 perpendicularToAxis = worldPos - pointOnAxis;
-                float3 originOnPlane = ProjectPointOnRay( _Origin.xyz, worldPos, ROTATIONAL_PLANE );
+                float3 originOnPlane = ProjectPointOnRay( pointOnAxis, worldPos, ROTATIONAL_PLANE );
 
                 float degree = _Degree;
                 float curveLength = _CurveLength;
