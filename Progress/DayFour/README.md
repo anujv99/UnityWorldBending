@@ -3,6 +3,8 @@
 
 - Added a cube to visualize the rotational axis and also can be used to move and rotate it.
 - Fixed a bug which was making the rounded portion larger than it should be. Check bug 1 below.
+- Added the ability to determine the relative rotation sign automatically. Check comparison below.
+![before_sign](auto_sign_before.png) ![after_sign](auto_sign_after.png) 
 
 #### Bugs
 

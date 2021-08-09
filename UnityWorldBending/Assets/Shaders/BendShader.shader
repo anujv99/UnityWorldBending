@@ -6,7 +6,10 @@ Shader "Unlit/BendShader"
         _Axis   ("Axis",   Vector) = (0, 1, 0, 1)
         _Origin ("Origin", Vector) = (0, 0, 0, 1)
         _Degree ("Degree", Float ) = 45
-        _CurveLength ("Curve Length", Float) = 10
+        _CurveLength ("Curve Length", Float) = 10.0
+
+        [Toggle(AUTO_SIGN)]
+        _AutoSign ("Automatically Determine Sign", Float) = 1
     }
     SubShader
     {
@@ -31,6 +34,9 @@ Shader "Unlit/BendShader"
 
             // used to determine how smooth the curve will be
             float _CurveLength;
+
+            // automatically determine the relative side of position and curve accordingly
+            int _AutoSign;
         CBUFFER_END
 
         struct VertexInput {
@@ -49,6 +55,8 @@ Shader "Unlit/BendShader"
 
             #pragma vertex vert
             #pragma fragment frag
+
+            #pragma shader_feature AUTO_SIGN
 
             // #define PI = 3.14159265f;
 
@@ -187,6 +195,13 @@ Shader "Unlit/BendShader"
 
                 // amount of degrees to rotate
                 float degree = _Degree;
+
+                // determine the sign of degree depending on the relative position of worldPos from
+                // the axis
+                #ifdef AUTO_SIGN
+                    float3 planeCrossVec = cross( REFRENCE_PLANE, normalize( pointOnAxis - worldPos ) );
+                    degree *= sign( dot( rotationalAxis, planeCrossVec ) );
+                #endif
 
                 // This is a unique parameter which decide the distance from our axis till the curveLength.
                 // Anything that lie in between this distance will be curved by a fraction of our degrees,

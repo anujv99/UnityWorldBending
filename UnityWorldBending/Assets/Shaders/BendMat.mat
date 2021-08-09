@@ -22,7 +22,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: BendMat
   m_Shader: {fileID: 4800000, guid: 9fa5bc01f8baf9c45af573931a762460, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: AUTO_SIGN
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -90,12 +90,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaClip: 0
+    - _AutoSign: 1
     - _Blend: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
-    - _CurveLength: 5000
+    - _CurveLength: 8000
     - _Cutoff: 0.5
     - _Degree: 180
     - _DetailAlbedoMapScale: 1
@@ -118,11 +119,11 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _Axis: {r: 0.96, g: 0, b: 1, a: 0}
+    - _Axis: {r: 0, g: 0, b: 1, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 0.3773585, g: 0, b: 0.08280376, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Origin: {r: -47, g: 2000, b: -1, a: 0}
+    - _Origin: {r: 2941, g: 2795, b: 2155, a: 0}
     - _Plane: {r: 0, g: 0, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
