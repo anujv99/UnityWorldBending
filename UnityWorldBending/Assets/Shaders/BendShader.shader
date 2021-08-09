@@ -170,7 +170,7 @@ Shader "Unlit/BendShader"
                 // easily be achieved by rotating the camera. So, in order to rotate the positions
                 // we pick a refrence plane along which we calculate distance and determine weather
                 // to rotate the positions or not.
-                const float3 ROTATIONAL_PLANE = float3( 1.0f, 0.0f, 0.0f );
+                const float3 REFRENCE_PLANE = float3( 1.0f, 0.0f, 0.0f );
 
                 // we do all computations in world space
                 float3 worldPos = TransformObjectToWorld( modelPos );
@@ -181,11 +181,9 @@ Shader "Unlit/BendShader"
                 // projection of our world position on the rotational axis
                 float3 pointOnAxis = ProjectPointOnRay( worldPos, _Origin.xyz, rotationalAxis );
 
-                // vector from pointOnAxis to the world position
-                float3 perpendicularToAxis = worldPos - pointOnAxis;
-
                 // projection of pointOnAxis to our refrence plane
-                float3 originOnPlane = ProjectPointOnRay( pointOnAxis, worldPos, ROTATIONAL_PLANE );
+                float3 perpToAxis = normalize( cross( REFRENCE_PLANE, rotationalAxis ) );
+                float3 originOnPlane = ProjectPointOnRay( worldPos, pointOnAxis, perpToAxis );
 
                 // amount of degrees to rotate
                 float degree = _Degree;
@@ -200,9 +198,9 @@ Shader "Unlit/BendShader"
                 float oopToWorld = length( worldPos - originOnPlane );
 
                 // This is just to determine the direction of this position along the refrence plane when
-                // seen from our axis origin. If the direction is negative we  can simple ignore all transformations
+                // seen from our axis origin. If the direction is negative we can simply ignore all transformations
                 // and return our worldPos.
-                float distDot = dot( worldPos - originOnPlane, ROTATIONAL_PLANE );
+                float distDot = dot( worldPos - originOnPlane, REFRENCE_PLANE );
                 if ( distDot < 0.0f )
                     return worldPos;
 

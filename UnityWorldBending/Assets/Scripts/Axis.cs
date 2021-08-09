@@ -17,13 +17,8 @@ public class Axis : MonoBehaviour {
         Renderer rend = other.GetComponent<Renderer>();
 
         if ( transform.hasChanged ) {
-            transform.hasChanged = false;
-
             Vector3 newAxis = Vector3.forward;
             newAxis = transform.rotation * newAxis;
-
-            Debug.Log( newAxis );
-            Debug.Log( transform.position );
 
             rend.sharedMaterial.SetVector( "_Axis", newAxis );
             rend.sharedMaterial.SetVector( "_Origin", transform.position );
