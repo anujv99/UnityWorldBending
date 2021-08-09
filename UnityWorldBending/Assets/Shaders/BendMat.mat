@@ -95,7 +95,7 @@ Material:
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
-    - _CurveLength: 45
+    - _CurveLength: 8000
     - _Cutoff: 0.5
     - _Degree: 180
     - _DetailAlbedoMapScale: 1
@@ -118,11 +118,11 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _Axis: {r: 0, g: 0, b: 1, a: 1}
+    - _Axis: {r: 0, g: 0, b: 1, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 0.3773585, g: 0, b: 0.08280376, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Origin: {r: 0, g: 10, b: 0, a: 1}
+    - _Origin: {r: 5279, g: -371, b: -3121, a: 0}
     - _Plane: {r: 0, g: 0, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
