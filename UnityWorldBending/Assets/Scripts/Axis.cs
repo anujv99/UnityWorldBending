@@ -9,11 +9,14 @@ public class Axis : MonoBehaviour {
 
     // Start is called before the first frame update
     private void Start() {
-
+        other = null;
     }
 
     // Update is called once per frame
     private void Update() {
+        if ( other == null )
+            return;
+
         Renderer rend = other.GetComponent<Renderer>();
 
         if ( transform.hasChanged ) {
@@ -33,6 +36,4 @@ public class Axis : MonoBehaviour {
 
         transform.hasChanged = false;
     }
-
-    private Renderer _renderer;
 }

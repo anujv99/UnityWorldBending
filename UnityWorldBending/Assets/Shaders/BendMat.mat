@@ -22,7 +22,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: BendMat
   m_Shader: {fileID: 4800000, guid: 9fa5bc01f8baf9c45af573931a762460, type: 3}
-  m_ShaderKeywords: AUTO_SIGN
+  m_ShaderKeywords: AUTO_SIGN _REFRENCEPLANE_POSITIVEX
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -111,6 +111,7 @@ Material:
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _RefrencePlane: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -123,7 +124,7 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 0.3773585, g: 0, b: 0.08280376, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Origin: {r: 2941, g: 2795, b: 2155, a: 0}
+    - _Origin: {r: 0, g: 0, b: 0, a: 0}
     - _Plane: {r: 0, g: 0, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

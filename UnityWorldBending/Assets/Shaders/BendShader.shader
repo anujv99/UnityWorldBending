@@ -10,6 +10,9 @@ Shader "Unlit/BendShader"
 
         [Toggle(AUTO_SIGN)]
         _AutoSign ("Automatically Determine Sign", Float) = 1
+
+        [KeywordEnum(PositiveX, NegativeX, PositiveY, NegativeY, PositiveZ, NegativeZ)]
+        _RefrencePlane ("Refrence Plane", Float) = 0.0
     }
     SubShader
     {
@@ -56,7 +59,16 @@ Shader "Unlit/BendShader"
             #pragma vertex vert
             #pragma fragment frag
 
+            // used to toggle sign determination
             #pragma shader_feature AUTO_SIGN
+
+            // used to set refrence plane
+            #pragma shader_feature _REFRENCEPLANE_POSITIVEX
+            #pragma shader_feature _REFRENCEPLANE_NEGATIVEX
+            #pragma shader_feature _REFRENCEPLANE_POSITIVEY
+            #pragma shader_feature _REFRENCEPLANE_NEGATIVEY
+            #pragma shader_feature _REFRENCEPLANE_POSITIVEZ
+            #pragma shader_feature _REFRENCEPLANE_NEGATIVEZ
 
             // #define PI = 3.14159265f;
 
@@ -81,6 +93,24 @@ Shader "Unlit/BendShader"
                 float3 po = origin - pt;
                 float factor = -dot( po, dir );
                 return origin + ( dir * factor );
+            }
+
+            float3 GetRefrencePlane( void ) {
+            #if defined( _REFRENCEPLANE_POSITIVEX )
+                return float3( 1.0f, 0.0f, 0.0f );
+            #elif defined( _REFRENCEPLANE_NEGATIVEX )
+                return float3( -1.0f, 0.0f, 0.0f );
+            #elif defined( _REFRENCEPLANE_POSITIVEY )
+                return float3( 0.0f, 1.0f, 0.0f );
+            #elif defined( _REFRENCEPLANE_NEGATIVEY )
+                return float3( 0.0f, -1.0f, 0.0f );
+            #elif defined( _REFRENCEPLANE_POSITIVEZ )
+                return float3( 0.0f, 0.0f, 1.0f );
+            #elif defined( _REFRENCEPLANE_NEGATIVEZ )
+                return float3( 0.0f, 0.0f, -1.0f );
+            #else
+                return float3( 0.0f, 1.0f, 0.0f ); // return positive x by default
+            #endif
             }
 
             // ============================================================================================================
@@ -178,7 +208,7 @@ Shader "Unlit/BendShader"
                 // easily be achieved by rotating the camera. So, in order to rotate the positions
                 // we pick a refrence plane along which we calculate distance and determine weather
                 // to rotate the positions or not.
-                const float3 REFRENCE_PLANE = float3( 1.0f, 0.0f, 0.0f );
+                const float3 REFRENCE_PLANE = GetRefrencePlane();
 
                 // we do all computations in world space
                 float3 worldPos = TransformObjectToWorld( modelPos );
